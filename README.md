@@ -285,25 +285,6 @@ Each credit represents real, measurable renewable energy:
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions! Here's how:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Contribution Guidelines
-- Follow TypeScript best practices
-- Use Tailwind CSS for styling
-- Keep components reusable
-- Write clear commit messages
-- Test before submitting PR
-
----
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -313,14 +294,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👨‍💻 Author
 
 **Sai Dev** - [@Sai-dev313](https://github.com/Sai-dev313)
-
----
-
-## 📧 Support & Contact
-
-- **Issues**: Report bugs via GitHub Issues
-- **Email**: [your-email@example.com]
-- **Documentation**: Check the `/docs` folder for detailed guides
 
 ---
 
@@ -344,7 +317,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📞 Quick Links
 
-- **Live Demo**: [Coming Soon]
+- **Live Demo**: [https://sun-share-save.lovable.app]
 - **Documentation**: [View Docs](#)
 - **Report Issues**: [GitHub Issues](https://github.com/Sai-dev313/sun-share-save/issues)
 - **Feature Requests**: [GitHub Discussions](#)
