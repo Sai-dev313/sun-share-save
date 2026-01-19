@@ -117,27 +117,29 @@ export default function ProducerDashboard() {
     if (!user || energyToday.sent_to_grid <= 0) return;
 
     setIsLoading(true);
-    const creditsToEarn = energyToday.sent_to_grid;
 
-    await supabase
-      .from('profiles')
-      .update({ credits: profile.credits + creditsToEarn })
-      .eq('id', user.id);
+    // Use atomic RPC function instead of separate updates
+    const { data, error } = await supabase.rpc('earn_credits', {
+      p_user_id: user.id
+    });
 
-    // Reset sent_to_grid after earning
-    const today = new Date().toISOString().split('T')[0];
-    await supabase
-      .from('energy_logs')
-      .update({ sent_to_grid: 0 })
-      .eq('user_id', user.id)
-      .eq('log_date', today);
+    if (error || !data?.[0]?.success) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: data?.[0]?.message || error?.message || 'Failed to earn credits'
+      });
+      setIsLoading(false);
+      return;
+    }
 
-    setProfile(prev => ({ ...prev, credits: prev.credits + creditsToEarn }));
+    const creditsEarned = Number(data[0].credits_earned);
+    setProfile(prev => ({ ...prev, credits: prev.credits + creditsEarned }));
     setEnergyToday(prev => ({ ...prev, sent_to_grid: 0 }));
     setIsLoading(false);
     toast({ 
       title: 'Credits Earned!', 
-      description: `You earned ${creditsToEarn} credits from your solar energy.` 
+      description: `You earned ${creditsEarned} credits from your solar energy.` 
     });
   };
 

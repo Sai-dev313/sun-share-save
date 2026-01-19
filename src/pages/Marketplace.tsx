@@ -16,10 +16,9 @@ interface Profile {
 
 interface Listing {
   id: string;
-  seller_id: string;
   credits_available: number;
   price_per_credit: number;
-  seller_name?: string;
+  is_own: boolean;
 }
 
 export default function Marketplace() {
@@ -54,29 +53,27 @@ export default function Marketplace() {
       });
     }
 
-    // Fetch listings
+    // Fetch listings from public view (no seller_id exposed)
     const { data: listingsData } = await supabase
-      .from('marketplace_listings')
-      .select('id, seller_id, credits_available, price_per_credit')
-      .eq('status', 'active')
+      .from('marketplace_listings_public')
+      .select('id, credits_available, price_per_credit')
       .order('created_at', { ascending: false });
 
     if (listingsData) {
-      // Fetch seller names
-      const sellerIds = [...new Set(listingsData.map(l => l.seller_id))];
-      const { data: sellersData } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', sellerIds);
-
-      const sellerMap = new Map(sellersData?.map(s => [s.id, s.full_name]) || []);
+      // Check which listings belong to current user
+      const listingsWithOwnership = await Promise.all(
+        listingsData.map(async (l) => {
+          const { data: isOwn } = await supabase.rpc('is_own_listing', { p_listing_id: l.id });
+          return {
+            id: l.id,
+            credits_available: Number(l.credits_available),
+            price_per_credit: Number(l.price_per_credit),
+            is_own: isOwn || false
+          };
+        })
+      );
       
-      setListings(listingsData.map(l => ({
-        ...l,
-        credits_available: Number(l.credits_available),
-        price_per_credit: Number(l.price_per_credit),
-        seller_name: sellerMap.get(l.seller_id) || 'Anonymous'
-      })));
+      setListings(listingsWithOwnership);
     }
   };
 
@@ -106,20 +103,22 @@ export default function Marketplace() {
 
     setIsLoading(true);
 
-    // Deduct credits from profile
-    await supabase
-      .from('profiles')
-      .update({ credits: profile.credits - credits })
-      .eq('id', user.id);
+    // Use atomic RPC function instead of separate updates
+    const { data, error } = await supabase.rpc('create_listing', {
+      p_seller_id: user.id,
+      p_credits: credits,
+      p_price_per_credit: price
+    });
 
-    // Create listing
-    await supabase
-      .from('marketplace_listings')
-      .insert({
-        seller_id: user.id,
-        credits_available: credits,
-        price_per_credit: price
+    if (error || !data?.[0]?.success) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: data?.[0]?.message || error?.message || 'Failed to create listing'
       });
+      setIsLoading(false);
+      return;
+    }
 
     setProfile(prev => ({ ...prev, credits: prev.credits - credits }));
     setCreditsToSell('');
@@ -134,7 +133,7 @@ export default function Marketplace() {
 
   const handleBuy = async (listing: Listing) => {
     if (!user) return;
-    if (listing.seller_id === user.id) {
+    if (listing.is_own) {
       toast({
         variant: 'destructive',
         title: 'Cannot buy own listing',
@@ -155,45 +154,21 @@ export default function Marketplace() {
 
     setIsLoading(true);
 
-    // Update buyer profile
-    await supabase
-      .from('profiles')
-      .update({
-        credits: profile.credits + listing.credits_available,
-        cash: profile.cash - totalCost
-      })
-      .eq('id', user.id);
+    // Use atomic RPC function instead of separate updates
+    const { data, error } = await supabase.rpc('purchase_listing', {
+      p_buyer_id: user.id,
+      p_listing_id: listing.id
+    });
 
-    // Update seller cash
-    const { data: sellerProfile } = await supabase
-      .from('profiles')
-      .select('cash')
-      .eq('id', listing.seller_id)
-      .maybeSingle();
-
-    if (sellerProfile) {
-      await supabase
-        .from('profiles')
-        .update({ cash: Number(sellerProfile.cash) + totalCost })
-        .eq('id', listing.seller_id);
-    }
-
-    // Mark listing as sold
-    await supabase
-      .from('marketplace_listings')
-      .update({ status: 'sold' })
-      .eq('id', listing.id);
-
-    // Create transaction record
-    await supabase
-      .from('transactions')
-      .insert({
-        buyer_id: user.id,
-        seller_id: listing.seller_id,
-        listing_id: listing.id,
-        credits_amount: listing.credits_available,
-        total_price: totalCost
+    if (error || !data?.[0]?.success) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: data?.[0]?.message || error?.message || 'Failed to complete purchase'
       });
+      setIsLoading(false);
+      return;
+    }
 
     setProfile(prev => ({
       credits: prev.credits + listing.credits_available,
@@ -319,7 +294,7 @@ export default function Marketplace() {
                         <UserIcon className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="font-semibold">{listing.seller_name}</p>
+                        <p className="font-semibold">{listing.is_own ? 'Your Listing' : 'Available'}</p>
                         <p className="text-sm text-muted-foreground">
                           {listing.credits_available} credits at ₹{listing.price_per_credit.toFixed(2)} each
                         </p>
@@ -332,9 +307,9 @@ export default function Marketplace() {
                       <Button
                         size="sm"
                         onClick={() => handleBuy(listing)}
-                        disabled={isLoading || listing.seller_id === user?.id}
+                        disabled={isLoading || listing.is_own}
                       >
-                        {listing.seller_id === user?.id ? 'Your Listing' : 'Buy Now'}
+                        {listing.is_own ? 'Your Listing' : 'Buy Now'}
                       </Button>
                     </div>
                   </div>

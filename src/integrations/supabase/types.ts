@@ -137,14 +137,79 @@ export type Database = {
             referencedRelation: "marketplace_listings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "transactions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      marketplace_listings_public: {
+        Row: {
+          created_at: string | null
+          credits_available: number | null
+          id: string | null
+          price_per_credit: number | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          credits_available?: number | null
+          id?: string | null
+          price_per_credit?: number | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          credits_available?: number | null
+          id?: string | null
+          price_per_credit?: number | null
+          status?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      create_listing: {
+        Args: {
+          p_credits: number
+          p_price_per_credit: number
+          p_seller_id: string
+        }
+        Returns: {
+          listing_id: string
+          message: string
+          success: boolean
+        }[]
+      }
+      earn_credits: {
+        Args: { p_user_id: string }
+        Returns: {
+          credits_earned: number
+          message: string
+          success: boolean
+        }[]
+      }
+      is_own_listing: { Args: { p_listing_id: string }; Returns: boolean }
+      purchase_listing: {
+        Args: { p_buyer_id: string; p_listing_id: string }
+        Returns: {
+          message: string
+          success: boolean
+        }[]
+      }
+      redeem_credits: {
+        Args: { p_credits: number; p_user_id: string }
+        Returns: {
+          message: string
+          savings: number
+          success: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

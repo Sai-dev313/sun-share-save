@@ -62,16 +62,24 @@ export default function ConsumerDashboard() {
     }
 
     setIsLoading(true);
-    const savings = credits * savingsPerCredit;
 
-    await supabase
-      .from('profiles')
-      .update({ 
-        credits: profile.credits - credits,
-        cash: profile.cash + savings 
-      })
-      .eq('id', user.id);
+    // Use atomic RPC function instead of direct update
+    const { data, error } = await supabase.rpc('redeem_credits', {
+      p_user_id: user.id,
+      p_credits: credits
+    });
 
+    if (error || !data?.[0]?.success) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: data?.[0]?.message || error?.message || 'Failed to redeem credits'
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const savings = Number(data[0].savings);
     setProfile(prev => ({
       credits: prev.credits - credits,
       cash: prev.cash + savings
