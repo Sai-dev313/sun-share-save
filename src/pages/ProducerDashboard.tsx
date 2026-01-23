@@ -118,10 +118,8 @@ export default function ProducerDashboard() {
 
     setIsLoading(true);
 
-    // Use atomic RPC function instead of separate updates
-    const { data, error } = await supabase.rpc('earn_credits', {
-      p_user_id: user.id
-    });
+    // Use atomic RPC function - auth.uid() used server-side
+    const { data, error } = await supabase.rpc('earn_credits');
 
     if (error || !data?.[0]?.success) {
       toast({

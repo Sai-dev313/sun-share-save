@@ -103,9 +103,8 @@ export default function Marketplace() {
 
     setIsLoading(true);
 
-    // Use atomic RPC function instead of separate updates
+    // Use atomic RPC function - auth.uid() used server-side
     const { data, error } = await supabase.rpc('create_listing', {
-      p_seller_id: user.id,
       p_credits: credits,
       p_price_per_credit: price
     });
@@ -154,9 +153,8 @@ export default function Marketplace() {
 
     setIsLoading(true);
 
-    // Use atomic RPC function instead of separate updates
+    // Use atomic RPC function - auth.uid() used server-side
     const { data, error } = await supabase.rpc('purchase_listing', {
-      p_buyer_id: user.id,
       p_listing_id: listing.id
     });
 

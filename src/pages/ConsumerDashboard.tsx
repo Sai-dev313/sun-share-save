@@ -63,9 +63,8 @@ export default function ConsumerDashboard() {
 
     setIsLoading(true);
 
-    // Use atomic RPC function instead of direct update
+    // Use atomic RPC function - auth.uid() used server-side
     const { data, error } = await supabase.rpc('redeem_credits', {
-      p_user_id: user.id,
       p_credits: credits
     });
 
