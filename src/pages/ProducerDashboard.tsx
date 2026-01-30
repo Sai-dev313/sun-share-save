@@ -77,35 +77,35 @@ export default function ProducerDashboard() {
     setIsLoading(true);
     const gen = parseFloat(generated);
     const use = parseFloat(used);
-    const sentToGrid = Math.max(0, gen - use);
 
-    const today = new Date().toISOString().split('T')[0];
-
-    // Check if log exists for today
-    const { data: existing } = await supabase
-      .from('energy_logs')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('log_date', today)
-      .maybeSingle();
-
-    if (existing) {
-      await supabase
-        .from('energy_logs')
-        .update({ generated: gen, used: use, sent_to_grid: sentToGrid })
-        .eq('id', existing.id);
-    } else {
-      await supabase
-        .from('energy_logs')
-        .insert({
-          user_id: user.id,
-          generated: gen,
-          used: use,
-          sent_to_grid: sentToGrid,
-          log_date: today
-        });
+    // Client-side validation for immediate feedback
+    if (isNaN(gen) || isNaN(use)) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid input',
+        description: 'Please enter valid numbers'
+      });
+      setIsLoading(false);
+      return;
     }
 
+    // Use atomic RPC function with server-side validation
+    const { data, error } = await supabase.rpc('log_energy', {
+      p_generated: gen,
+      p_used: use
+    });
+
+    if (error || !data?.[0]?.success) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: data?.[0]?.message || error?.message || 'Failed to log energy'
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const sentToGrid = Number(data[0].sent_to_grid);
     setEnergyToday({ generated: gen, used: use, sent_to_grid: sentToGrid });
     setGenerated('');
     setUsed('');

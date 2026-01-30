@@ -213,6 +213,14 @@ export type Database = {
             }[]
           }
       is_own_listing: { Args: { p_listing_id: string }; Returns: boolean }
+      log_energy: {
+        Args: { p_generated: number; p_used: number }
+        Returns: {
+          message: string
+          sent_to_grid: number
+          success: boolean
+        }[]
+      }
       purchase_listing:
         | {
             Args: { p_buyer_id: string; p_listing_id: string }
