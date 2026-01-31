@@ -58,7 +58,7 @@ All colors MUST be HSL.
     --input: 0 0% 0%;
     --ring: 0 0% 0%;
 
-    --radius: 0rem;
+    --radius: 1.375rem;
 
     --sidebar-background: 140 50% 55%;
     --sidebar-foreground: 0 0% 0%;
@@ -81,12 +81,12 @@ All colors MUST be HSL.
     --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
-    --shadow-sm: 3px 3px 0px 0px #000000;
-    --shadow-md: 8px 8px 0px 0px #000000;
-    --shadow-lg: 12px 12px 0px 0px #000000;
+    --shadow-sm: 5px 5px 27.75px 1px hsl(46, 97%, 65%);
+    --shadow-md: 5px 5px 83.25px 1px hsl(46, 97%, 65%);
+    --shadow-lg: 5px 5px 138.75px 1px hsl(46, 97%, 65%);
     --shadow-2xs: 1px 1px 0px 0px #000000;
     --shadow-xs: 2px 2px 0px 0px #000000;
-    --shadow: 5px 5px 0px 0px #000000;
+    --shadow: 5px 5px 55.5px 1px hsl(46, 97%, 65%);
     --shadow-xl: 16px 16px 0px 0px #000000;
     --shadow-2xl: 24px 24px 0px 0px #000000;
     --tracking-normal: 0em;
@@ -143,19 +143,19 @@ All colors MUST be HSL.
 
     --shadow-xs: 2px 2px 0px 0px #ffffff;
 
-    --shadow-sm: 3px 3px 0px 0px #ffffff;
+    --shadow-sm: 5px 5px 27.75px 1px hsl(46, 97%, 65%);
 
-    --shadow: 5px 5px 0px 0px #ffffff;
+    --shadow: 5px 5px 55.5px 1px hsl(46, 97%, 65%);
 
-    --shadow-md: 8px 8px 0px 0px #ffffff;
+    --shadow-md: 5px 5px 83.25px 1px hsl(46, 97%, 65%);
 
-    --shadow-lg: 12px 12px 0px 0px #ffffff;
+    --shadow-lg: 5px 5px 138.75px 1px hsl(46, 97%, 65%);
 
     --shadow-xl: 16px 16px 0px 0px #ffffff;
 
     --shadow-2xl: 24px 24px 0px 0px #ffffff;
 
-    --radius: 0rem;
+    --radius: 1.375rem;
   }
 }
 
