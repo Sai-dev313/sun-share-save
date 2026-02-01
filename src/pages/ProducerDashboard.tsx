@@ -204,52 +204,86 @@ export default function ProducerDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Log Today's Energy</CardTitle>
-            <CardDescription>Enter your solar generation and home usage</CardDescription>
+            <CardDescription>
+              {energyToday.generated > 0 
+                ? "You've already logged your energy for today" 
+                : "Enter your solar generation and home usage"}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-end">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={simulateSmartMeterFeed}
-                type="button"
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                Simulate Smart Meter Feed
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="generated">Power Generated (kWh)</Label>
-                <Input
-                  id="generated"
-                  type="number"
-                  placeholder="e.g., 25"
-                  value={generated}
-                  onChange={(e) => setGenerated(e.target.value)}
-                />
+            {energyToday.generated > 0 ? (
+              // Summary when already logged
+              <div className="rounded-lg border border-border bg-muted/50 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Sun className="h-4 w-4" />
+                  <span>Energy logged on {new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-4 pt-2">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-primary">{energyToday.generated}</p>
+                    <p className="text-xs text-muted-foreground">kWh Generated</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-foreground">{energyToday.used}</p>
+                    <p className="text-xs text-muted-foreground">kWh Used at Home</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-primary">{energyToday.sent_to_grid}</p>
+                    <p className="text-xs text-muted-foreground">kWh Sent to Grid</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground text-center pt-2 border-t border-border">
+                  ✓ Today's energy has been logged. Come back tomorrow to log again!
+                </p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="used">Power Used at Home (kWh)</Label>
-                <Input
-                  id="used"
-                  type="number"
-                  placeholder="e.g., 15"
-                  value={used}
-                  onChange={(e) => setUsed(e.target.value)}
-                />
-              </div>
-            </div>
-            {generated && used && (
-              <p className="text-sm text-muted-foreground">
-                Extra power to grid: <span className="font-semibold text-primary">
-                  {Math.max(0, parseFloat(generated) - parseFloat(used))} kWh
-                </span>
-              </p>
+            ) : (
+              // Form when not logged yet
+              <>
+                <div className="flex justify-end">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={simulateSmartMeterFeed}
+                    type="button"
+                  >
+                    <Zap className="h-4 w-4 mr-2" />
+                    Simulate Smart Meter Feed
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="generated">Power Generated (kWh)</Label>
+                    <Input
+                      id="generated"
+                      type="number"
+                      placeholder="e.g., 25"
+                      value={generated}
+                      onChange={(e) => setGenerated(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="used">Power Used at Home (kWh)</Label>
+                    <Input
+                      id="used"
+                      type="number"
+                      placeholder="e.g., 15"
+                      value={used}
+                      onChange={(e) => setUsed(e.target.value)}
+                    />
+                  </div>
+                </div>
+                {generated && used && (
+                  <p className="text-sm text-muted-foreground">
+                    Extra power to grid: <span className="font-semibold text-primary">
+                      {Math.max(0, parseFloat(generated) - parseFloat(used))} kWh
+                    </span>
+                  </p>
+                )}
+                <Button onClick={handleLogEnergy} disabled={isLoading || !generated || !used}>
+                  Log Energy
+                </Button>
+              </>
             )}
-            <Button onClick={handleLogEnergy} disabled={isLoading || !generated || !used}>
-              Log Energy
-            </Button>
           </CardContent>
         </Card>
 
