@@ -77,8 +77,12 @@ export default function Auth() {
             });
           }
         } else {
-          toast({ title: 'Account created successfully!' });
-          navigate('/');
+          toast({ 
+            title: 'Check your email!', 
+            description: 'We sent you a verification link to complete your registration.'
+          });
+          // Redirect to verification page with email for context
+          navigate(`/verify-email?email=${encodeURIComponent(email)}`);
         }
       }
     } catch (err) {

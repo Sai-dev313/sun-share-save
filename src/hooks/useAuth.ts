@@ -26,7 +26,8 @@ export function useAuth() {
   }, []);
 
   const signUpWithRole = async (email: string, password: string, fullName: string, role: 'producer' | 'consumer') => {
-    const redirectUrl = `${window.location.origin}/`;
+    // Redirect to verify-email page after email confirmation
+    const redirectUrl = `${window.location.origin}/verify-email`;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
