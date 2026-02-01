@@ -25,10 +25,11 @@ export default function VerifyEmail() {
       const refreshToken = hashParams.get('refresh_token');
       const type = hashParams.get('type');
 
-      if (type === 'signup' && accessToken && refreshToken) {
+      // Handle various verification types (signup, email, magiclink)
+      if (accessToken && refreshToken && (type === 'signup' || type === 'email' || type === 'magiclink')) {
         setIsVerifying(true);
         try {
-          const { error } = await supabase.auth.setSession({
+          const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
@@ -39,14 +40,15 @@ export default function VerifyEmail() {
               title: 'Verification failed',
               description: error.message,
             });
-          } else {
+            setIsVerifying(false);
+          } else if (data.session) {
             setIsVerified(true);
             toast({
               title: 'Email verified!',
-              description: 'Your account is now active.',
+              description: 'Welcome! Redirecting to your dashboard...',
             });
-            // Redirect to home after a short delay
-            setTimeout(() => navigate('/'), 1500);
+            // Immediate redirect to dashboard
+            navigate('/');
           }
         } catch (err) {
           toast({
@@ -54,7 +56,6 @@ export default function VerifyEmail() {
             title: 'Verification error',
             description: 'Something went wrong. Please try again.',
           });
-        } finally {
           setIsVerifying(false);
         }
       }
