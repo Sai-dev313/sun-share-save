@@ -12,6 +12,7 @@ import ProducerDashboard from "./pages/ProducerDashboard";
 import ConsumerDashboard from "./pages/ConsumerDashboard";
 import Marketplace from "./pages/Marketplace";
 import Profile from "./pages/Profile";
+import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/dashboard" element={<ProducerDashboard />} />
             <Route path="/consumer" element={<ConsumerDashboard />} />
             <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/payments" element={<Payments />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

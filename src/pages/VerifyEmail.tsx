@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, CheckCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isCheckingVerification, setIsCheckingVerification] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const { user, loading } = useAuthContext();
   const navigate = useNavigate();
@@ -17,15 +18,42 @@ export default function VerifyEmail() {
   
   const email = searchParams.get('email') || '';
 
+  // Function to check if user is verified
+  const checkVerificationStatus = useCallback(async () => {
+    try {
+      // Refresh the session to get latest user data
+      const { data: { session }, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.log('Session refresh error:', error.message);
+        return false;
+      }
+      
+      if (session?.user?.email_confirmed_at) {
+        setIsVerified(true);
+        toast({
+          title: 'Email verified!',
+          description: 'Welcome! Redirecting to your dashboard...',
+        });
+        navigate('/');
+        return true;
+      }
+      
+      return false;
+    } catch (err) {
+      console.log('Verification check error:', err);
+      return false;
+    }
+  }, [navigate, toast]);
+
+  // Handle email verification callback from Supabase link
   useEffect(() => {
-    // Handle email verification callback from Supabase
     const handleEmailVerification = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
       const type = hashParams.get('type');
 
-      // Handle various verification types (signup, email, magiclink)
       if (accessToken && refreshToken && (type === 'signup' || type === 'email' || type === 'magiclink')) {
         setIsVerifying(true);
         try {
@@ -47,7 +75,6 @@ export default function VerifyEmail() {
               title: 'Email verified!',
               description: 'Welcome! Redirecting to your dashboard...',
             });
-            // Immediate redirect to dashboard
             navigate('/');
           }
         } catch (err) {
@@ -64,12 +91,39 @@ export default function VerifyEmail() {
     handleEmailVerification();
   }, [navigate, toast]);
 
+  // Auto-check verification every 5 seconds
+  useEffect(() => {
+    if (isVerified || isVerifying) return;
+
+    const intervalId = setInterval(() => {
+      checkVerificationStatus();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [checkVerificationStatus, isVerified, isVerifying]);
+
   // If user is already logged in and verified, redirect to home
   useEffect(() => {
     if (!loading && user && user.email_confirmed_at) {
       navigate('/');
     }
   }, [user, loading, navigate]);
+
+  const handleIveVerified = async () => {
+    setIsCheckingVerification(true);
+    
+    const verified = await checkVerificationStatus();
+    
+    if (!verified) {
+      toast({
+        variant: 'destructive',
+        title: 'Email not verified yet',
+        description: 'Please check your inbox and click the verification link.',
+      });
+    }
+    
+    setIsCheckingVerification(false);
+  };
 
   const handleResendEmail = async () => {
     if (!email) {
@@ -129,10 +183,10 @@ export default function VerifyEmail() {
       <div className="min-h-screen flex items-center justify-center bg-muted p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 bg-primary rounded-full">
-              <CheckCircle className="h-8 w-8 text-primary-foreground" />
-            </div>
+            <div className="flex justify-center mb-4">
+              <div className="p-3 bg-primary rounded-full">
+                <CheckCircle className="h-8 w-8 text-primary-foreground" />
+              </div>
             </div>
             <CardTitle className="text-2xl">Email Verified!</CardTitle>
             <CardDescription>
@@ -153,19 +207,37 @@ export default function VerifyEmail() {
               <Mail className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Verify Your Email</CardTitle>
+          <CardTitle className="text-2xl">Check Your Email</CardTitle>
           <CardDescription>
             We've sent a verification link to{' '}
             <span className="font-medium text-foreground">{email || 'your email'}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Click the link in your email to verify your account and get started.
-              The link will expire in 24 hours.
+          <div className="bg-primary/10 rounded-lg p-4 text-center">
+            <Mail className="h-12 w-12 mx-auto mb-3 text-primary" />
+            <p className="text-sm text-foreground font-medium">
+              📩 Check your email to verify your account
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Click the link in your email, then come back here
             </p>
           </div>
+
+          <Button
+            className="w-full h-12 text-lg"
+            onClick={handleIveVerified}
+            disabled={isCheckingVerification}
+          >
+            {isCheckingVerification ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                Checking...
+              </>
+            ) : (
+              "I've verified my email"
+            )}
+          </Button>
 
           <div className="space-y-3">
             <Button

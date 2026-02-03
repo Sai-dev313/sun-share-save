@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sun, Zap, Battery, Coins, IndianRupee, ArrowRight } from 'lucide-react';
+import { Sun, Zap, Battery, Coins, IndianRupee, ArrowRight, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { StatCard } from '@/components/ui/stat-card';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { BillPayment } from '@/components/BillPayment';
-import { TransactionHistory } from '@/components/TransactionHistory';
+import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +26,7 @@ interface EnergyLog {
 export default function ProducerDashboard() {
   const { user } = useAuthContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile>({ credits: 0, cash: 5000 });
   const [energyToday, setEnergyToday] = useState<EnergyLog>({ generated: 0, used: 0, sent_to_grid: 0 });
   const [generated, setGenerated] = useState('');
@@ -349,8 +350,20 @@ export default function ProducerDashboard() {
           isConsumer={false}
         />
 
-        {/* Transaction History */}
-        <TransactionHistory />
+        {/* View Payment History CTA */}
+        <Card className="border-border">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Receipt className="h-5 w-5 text-muted-foreground" />
+                <span className="text-muted-foreground">View all your bill payments and credit transactions</span>
+              </div>
+              <Button variant="outline" onClick={() => navigate('/payments')}>
+                View History
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   );

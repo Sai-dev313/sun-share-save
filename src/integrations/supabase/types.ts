@@ -17,29 +17,50 @@ export type Database = {
       bill_payments: {
         Row: {
           bill_amount: number
+          billing_month: string
           cash_paid: number
+          consumer_name: string
+          consumer_number: string
           created_at: string
           credit_savings: number
           credits_used: number
           id: string
+          meter_number: string
+          provider: string
+          rate_per_unit: number
+          units_consumed: number
           user_id: string
         }
         Insert: {
           bill_amount: number
+          billing_month?: string
           cash_paid?: number
+          consumer_name?: string
+          consumer_number?: string
           created_at?: string
           credit_savings?: number
           credits_used?: number
           id?: string
+          meter_number?: string
+          provider?: string
+          rate_per_unit?: number
+          units_consumed?: number
           user_id: string
         }
         Update: {
           bill_amount?: number
+          billing_month?: string
           cash_paid?: number
+          consumer_name?: string
+          consumer_number?: string
           created_at?: string
           credit_savings?: number
           credits_used?: number
           id?: string
+          meter_number?: string
+          provider?: string
+          rate_per_unit?: number
+          units_consumed?: number
           user_id?: string
         }
         Relationships: []
@@ -221,15 +242,35 @@ export type Database = {
           success: boolean
         }[]
       }
-      pay_bill: {
-        Args: { p_bill_amount: number; p_credits_to_use: number }
-        Returns: {
-          cash_remaining: number
-          credits_remaining: number
-          message: string
-          success: boolean
-        }[]
-      }
+      pay_bill:
+        | {
+            Args: { p_bill_amount: number; p_credits_to_use: number }
+            Returns: {
+              cash_remaining: number
+              credits_remaining: number
+              message: string
+              success: boolean
+            }[]
+          }
+        | {
+            Args: {
+              p_bill_amount: number
+              p_billing_month?: string
+              p_consumer_name?: string
+              p_consumer_number?: string
+              p_credits_to_use: number
+              p_meter_number?: string
+              p_provider?: string
+              p_units_consumed?: number
+            }
+            Returns: {
+              cash_remaining: number
+              credits_remaining: number
+              message: string
+              receipt_id: string
+              success: boolean
+            }[]
+          }
       purchase_listing:
         | {
             Args: { p_buyer_id: string; p_listing_id: string }

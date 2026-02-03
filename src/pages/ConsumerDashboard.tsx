@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { StatCard } from '@/components/ui/stat-card';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { BillPayment } from '@/components/BillPayment';
-import { TransactionHistory } from '@/components/TransactionHistory';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -139,8 +138,20 @@ export default function ConsumerDashboard() {
           isConsumer={true}
         />
 
-        {/* Transaction History */}
-        <TransactionHistory />
+        {/* View Payment History CTA */}
+        <Card className="border-border">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Receipt className="h-5 w-5 text-muted-foreground" />
+                <span className="text-muted-foreground">View all your bill payments and credit transactions</span>
+              </div>
+              <Button variant="outline" onClick={() => navigate('/payments')}>
+                View History
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   );

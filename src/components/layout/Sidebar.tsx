@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Sun, ShoppingCart, User, LogOut, Zap, CreditCard } from 'lucide-react';
+import { Sun, ShoppingCart, User, LogOut, Zap, CreditCard, Receipt } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ export function Sidebar({ role }: SidebarProps) {
       { path: '/consumer', label: 'Dashboard', icon: CreditCard }
     ] : []),
     { path: '/marketplace', label: 'Marketplace', icon: ShoppingCart },
+    { path: '/payments', label: 'Payments', icon: Receipt },
     { path: '/profile', label: 'Profile', icon: User },
   ];
 
