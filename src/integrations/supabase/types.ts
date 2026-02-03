@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      bill_payments: {
+        Row: {
+          bill_amount: number
+          cash_paid: number
+          created_at: string
+          credit_savings: number
+          credits_used: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          bill_amount: number
+          cash_paid?: number
+          created_at?: string
+          credit_savings?: number
+          credits_used?: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          bill_amount?: number
+          cash_paid?: number
+          created_at?: string
+          credit_savings?: number
+          credits_used?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       energy_logs: {
         Row: {
           created_at: string | null
@@ -188,6 +218,15 @@ export type Database = {
         Returns: {
           message: string
           sent_to_grid: number
+          success: boolean
+        }[]
+      }
+      pay_bill: {
+        Args: { p_bill_amount: number; p_credits_to_use: number }
+        Returns: {
+          cash_remaining: number
+          credits_remaining: number
+          message: string
           success: boolean
         }[]
       }

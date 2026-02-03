@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Receipt, 
   Wallet, 
@@ -15,7 +16,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface BillPaymentProps {
@@ -66,37 +66,17 @@ export function BillPayment({ credits, cash, onPaymentComplete, isConsumer = fal
 
     setIsLoading(true);
 
-    // First, redeem credits if any
-    if (creditsToUse > 0) {
-      const { data, error } = await supabase.rpc('redeem_credits', {
-        p_credits: creditsToUse
-      });
+    // Use the atomic pay_bill RPC function
+    const { data, error } = await supabase.rpc('pay_bill', {
+      p_bill_amount: billValue,
+      p_credits_to_use: creditsToUse
+    });
 
-      if (error || !data?.[0]?.success) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: data?.[0]?.message || error?.message || 'Failed to redeem credits'
-        });
-        setIsLoading(false);
-        return;
-      }
-    }
-
-    // Deduct cash for remaining amount
-    const { error: cashError } = await supabase
-      .from('profiles')
-      .update({ 
-        cash: cash - amountToPay + creditSavings,
-        credits: credits - creditsToUse
-      })
-      .eq('id', (await supabase.auth.getUser()).data.user?.id);
-
-    if (cashError) {
+    if (error || !data?.[0]?.success) {
       toast({
         variant: 'destructive',
         title: 'Payment failed',
-        description: 'Could not process payment'
+        description: data?.[0]?.message || error?.message || 'Could not process payment'
       });
       setIsLoading(false);
       return;
@@ -110,8 +90,11 @@ export function BillPayment({ credits, cash, onPaymentComplete, isConsumer = fal
       cashPaid: amountToPay
     });
 
-    // Update parent state
-    onPaymentComplete(credits - creditsToUse, cash - amountToPay);
+    // Update parent state with values from RPC response
+    onPaymentComplete(
+      Number(data[0].credits_remaining),
+      Number(data[0].cash_remaining)
+    );
     
     setPaymentSuccess(true);
     setIsLoading(false);

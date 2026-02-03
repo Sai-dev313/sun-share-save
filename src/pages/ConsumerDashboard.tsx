@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { StatCard } from '@/components/ui/stat-card';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { BillPayment } from '@/components/BillPayment';
+import { TransactionHistory } from '@/components/TransactionHistory';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -137,6 +138,9 @@ export default function ConsumerDashboard() {
           onPaymentComplete={handlePaymentComplete}
           isConsumer={true}
         />
+
+        {/* Transaction History */}
+        <TransactionHistory />
       </div>
     </AppLayout>
   );

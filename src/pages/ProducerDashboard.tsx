@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { StatCard } from '@/components/ui/stat-card';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { BillPayment } from '@/components/BillPayment';
+import { TransactionHistory } from '@/components/TransactionHistory';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -347,6 +348,9 @@ export default function ProducerDashboard() {
           onPaymentComplete={handlePaymentComplete}
           isConsumer={false}
         />
+
+        {/* Transaction History */}
+        <TransactionHistory />
       </div>
     </AppLayout>
   );
