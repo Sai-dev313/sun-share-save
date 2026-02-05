@@ -20,6 +20,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import { PaymentPinFlow } from './PaymentPinFlow';
 
 interface BillPaymentProps {
   credits: number;
@@ -74,7 +75,7 @@ const ELECTRICITY_PROVIDERS = [
 
 export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: BillPaymentProps) {
   const { toast } = useToast();
-  const [step, setStep] = useState<'input' | 'bill' | 'payment' | 'receipt'>('input');
+  const [step, setStep] = useState<'input' | 'bill' | 'pin' | 'receipt'>('input');
   const [provider, setProvider] = useState('');
   const [consumerNumber, setConsumerNumber] = useState('');
   const [demoBill, setDemoBill] = useState<DemoBill | null>(null);
@@ -120,10 +121,8 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
     setStep('bill');
   };
 
-  const handlePayBill = async () => {
+  const processPayment = async () => {
     if (!demoBill) return;
-
-    setIsLoading(true);
 
     const creditSavings = creditsToUse * savingsPerCredit;
     const upiAmount = Math.max(0, demoBill.totalAmount - creditSavings);
@@ -141,13 +140,7 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
     });
 
     if (error || !data?.[0]?.success) {
-      toast({
-        variant: 'destructive',
-        title: 'Payment failed',
-        description: data?.[0]?.message || error?.message || 'Could not process payment'
-      });
-      setIsLoading(false);
-      return;
+      throw new Error(data?.[0]?.message || error?.message || 'Could not process payment');
     }
 
     // Create receipt
@@ -169,16 +162,10 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
       Number(data[0].credits_remaining),
       Number(data[0].cash_remaining)
     );
-    
-    setStep('receipt');
-    setIsLoading(false);
-    
-    toast({
-      title: 'Bill paid successfully!',
-      description: creditSavings > 0 
-        ? `You saved ₹${creditSavings} using ${creditsToUse} credits!`
-        : 'Your electricity bill has been paid.'
-    });
+  };
+
+  const handlePayBill = () => {
+    setStep('pin');
   };
 
   const resetPayment = () => {
@@ -195,6 +182,28 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
     : 0;
   const creditSavings = creditsToUse * savingsPerCredit;
   const remainingAmount = demoBill ? Math.max(0, demoBill.totalAmount - creditSavings) : 0;
+
+  // PIN Flow View
+  if (step === 'pin' && demoBill) {
+    return (
+      <PaymentPinFlow
+        amount={remainingAmount}
+        onConfirm={async () => {
+          await processPayment();
+          setStep('receipt');
+          toast({
+            title: 'Bill paid successfully!',
+            description: creditSavings > 0 
+              ? `You saved ₹${creditSavings} using ${creditsToUse} credits!`
+              : 'Your electricity bill has been paid.'
+          });
+        }}
+        onCancel={() => setStep('bill')}
+        title="Enter UPI PIN"
+        description="Enter your 4-digit UPI PIN to pay your electricity bill"
+      />
+    );
+  }
 
   // Receipt View
   if (step === 'receipt' && receipt) {

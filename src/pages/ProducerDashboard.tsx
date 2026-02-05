@@ -3,6 +3,7 @@ import { Coins, IndianRupee } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ActionIconGrid, PanelType } from '@/components/dashboard/ActionIconGrid';
+import { DashboardInfoCard } from '@/components/dashboard/DashboardInfoCard';
 import { LogEnergyPanel } from '@/components/dashboard/panels/LogEnergyPanel';
 import { ConvertCreditsPanel } from '@/components/dashboard/panels/ConvertCreditsPanel';
 import { ProducerMarketplacePanel } from '@/components/dashboard/panels/ProducerMarketplacePanel';
@@ -20,12 +21,13 @@ interface EnergyLog {
   generated: number;
   used: number;
   sent_to_grid: number;
+  credits_converted: boolean;
 }
 
 export default function ProducerDashboard() {
   const { user } = useAuthContext();
   const [profile, setProfile] = useState<Profile>({ credits: 0, cash: 5000 });
-  const [energyToday, setEnergyToday] = useState<EnergyLog>({ generated: 0, used: 0, sent_to_grid: 0 });
+  const [energyToday, setEnergyToday] = useState<EnergyLog>({ generated: 0, used: 0, sent_to_grid: 0, credits_converted: false });
   const [activePanel, setActivePanel] = useState<PanelType>(null);
 
   useEffect(() => {
@@ -64,18 +66,20 @@ export default function ProducerDashboard() {
       setEnergyToday({
         generated: Number(energyData.generated) || 0,
         used: Number(energyData.used) || 0,
-        sent_to_grid: Number(energyData.sent_to_grid) || 0
+        sent_to_grid: Number(energyData.sent_to_grid) || 0,
+        credits_converted: Number(energyData.sent_to_grid) === 0 && Number(energyData.generated) > 0
       });
     }
   };
 
   const handleEnergyLogged = (log: EnergyLog) => {
-    setEnergyToday(log);
+    setEnergyToday({ ...log, credits_converted: false });
   };
 
   const handleCreditsEarned = (creditsEarned: number) => {
     setProfile(prev => ({ ...prev, credits: prev.credits + creditsEarned }));
-    setEnergyToday(prev => ({ ...prev, sent_to_grid: 0 }));
+    // Mark as converted but keep displaying the sent_to_grid value
+    setEnergyToday(prev => ({ ...prev, credits_converted: true }));
   };
 
   const handleListingCreated = (creditsUsed: number) => {
@@ -98,7 +102,9 @@ export default function ProducerDashboard() {
       case 'convertCredits':
         return (
           <ConvertCreditsPanel 
-            availableToConvert={energyToday.sent_to_grid} 
+            availableToConvert={energyToday.credits_converted ? 0 : energyToday.sent_to_grid}
+            displayValue={energyToday.sent_to_grid}
+            isConverted={energyToday.credits_converted}
             onCreditsEarned={handleCreditsEarned} 
           />
         );
@@ -170,6 +176,9 @@ export default function ProducerDashboard() {
           activePanel={activePanel} 
           onPanelChange={setActivePanel} 
         />
+
+        {/* Info Card */}
+        {!activePanel && <DashboardInfoCard role="producer" />}
 
         {/* Active Panel */}
         {activePanel && (

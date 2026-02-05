@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { PaymentPinFlow } from '@/components/PaymentPinFlow';
 
 interface Listing {
   id: string;
@@ -22,6 +23,8 @@ export function BuyCreditsPanel({ cash, onPurchaseComplete }: BuyCreditsPanelPro
   const { toast } = useToast();
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [showPinFlow, setShowPinFlow] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -47,7 +50,7 @@ export function BuyCreditsPanel({ cash, onPurchaseComplete }: BuyCreditsPanelPro
     }
   };
 
-  const handleBuy = async (listing: Listing) => {
+  const handleBuyClick = (listing: Listing) => {
     const totalCost = listing.credits_available * listing.price_per_credit;
     
     if (totalCost > cash) {
@@ -59,31 +62,50 @@ export function BuyCreditsPanel({ cash, onPurchaseComplete }: BuyCreditsPanelPro
       return;
     }
 
-    setIsLoading(true);
+    setSelectedListing(listing);
+    setShowPinFlow(true);
+  };
+
+  const processPurchase = async () => {
+    if (!selectedListing) return;
 
     const { data, error } = await supabase.rpc('purchase_listing', {
-      p_listing_id: listing.id
+      p_listing_id: selectedListing.id
     });
 
     if (error || !data?.[0]?.success) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: data?.[0]?.message || error?.message || 'Failed to complete purchase'
-      });
-      setIsLoading(false);
-      return;
+      throw new Error(data?.[0]?.message || error?.message || 'Failed to complete purchase');
     }
 
-    onPurchaseComplete(listing.credits_available, totalCost);
+    const totalCost = selectedListing.credits_available * selectedListing.price_per_credit;
+    onPurchaseComplete(selectedListing.credits_available, totalCost);
     await fetchListings();
-    setIsLoading(false);
 
     toast({
       title: 'Purchase Complete!',
-      description: `You bought ${listing.credits_available} credits for ₹${totalCost.toFixed(2)}`
+      description: `You bought ${selectedListing.credits_available} credits for ₹${totalCost.toFixed(2)}`
     });
   };
+
+  if (showPinFlow && selectedListing) {
+    const totalCost = selectedListing.credits_available * selectedListing.price_per_credit;
+    return (
+      <PaymentPinFlow
+        amount={totalCost}
+        onConfirm={async () => {
+          await processPurchase();
+          setShowPinFlow(false);
+          setSelectedListing(null);
+        }}
+        onCancel={() => {
+          setShowPinFlow(false);
+          setSelectedListing(null);
+        }}
+        title="Enter UPI PIN"
+        description={`Buy ${selectedListing.credits_available} credits`}
+      />
+    );
+  }
 
   return (
     <Card>
@@ -132,7 +154,7 @@ export function BuyCreditsPanel({ cash, onPurchaseComplete }: BuyCreditsPanelPro
                     </p>
                     <Button
                       size="sm"
-                      onClick={() => handleBuy(listing)}
+                      onClick={() => handleBuyClick(listing)}
                       disabled={isLoading || !canAfford}
                     >
                       {canAfford ? 'Buy Now' : 'Insufficient Funds'}

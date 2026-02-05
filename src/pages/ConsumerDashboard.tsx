@@ -3,6 +3,7 @@ import { Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ActionIconGrid, PanelType } from '@/components/dashboard/ActionIconGrid';
+import { DashboardInfoCard } from '@/components/dashboard/DashboardInfoCard';
 import { BuyCreditsPanel } from '@/components/dashboard/panels/BuyCreditsPanel';
 import { PaymentHistoryPanel } from '@/components/dashboard/panels/PaymentHistoryPanel';
 import { BillPayment } from '@/components/BillPayment';
@@ -111,6 +112,9 @@ export default function ConsumerDashboard() {
           activePanel={activePanel} 
           onPanelChange={setActivePanel} 
         />
+
+        {/* Info Card */}
+        {!activePanel && <DashboardInfoCard role="consumer" />}
 
         {/* Active Panel */}
         {activePanel && (

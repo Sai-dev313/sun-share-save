@@ -3,6 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, CheckCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +17,7 @@ export default function VerifyEmail() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isCheckingVerification, setIsCheckingVerification] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
   const { user, loading } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -207,7 +213,7 @@ export default function VerifyEmail() {
               <Mail className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Check Your Email</CardTitle>
+        <CardTitle className="text-2xl">Verify Your Email</CardTitle>
           <CardDescription>
             We've sent a verification link to{' '}
             <span className="font-medium text-foreground">{email || 'your email'}</span>
@@ -223,6 +229,32 @@ export default function VerifyEmail() {
               Click the link in your email, then come back here
             </p>
           </div>
+
+        {/* OTP Display for Visual Effect */}
+        <div className="space-y-3">
+          <p className="text-center text-sm text-muted-foreground">
+            Or enter the verification code from your email
+          </p>
+          <div className="flex justify-center">
+            <InputOTP
+              maxLength={6}
+              value={otpValue}
+              onChange={setOtpValue}
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+          <p className="text-xs text-center text-muted-foreground">
+            (Demo: Any 6 digits work after clicking email link)
+          </p>
+        </div>
 
           <Button
             className="w-full h-12 text-lg"
