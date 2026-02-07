@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { validatePassword } from '@/lib/password-validation';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -78,11 +80,12 @@ export default function ResetPassword() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password.length < 6) {
+    const validation = validatePassword(password);
+    if (!validation.valid) {
       toast({
         variant: 'destructive',
-        title: 'Password too short',
-        description: 'Password must be at least 6 characters'
+        title: 'Invalid password',
+        description: validation.message
       });
       return;
     }
@@ -180,6 +183,10 @@ export default function ResetPassword() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <PasswordStrengthIndicator password={password} />
+              <p className="text-xs text-muted-foreground">
+                Minimum 8 characters with uppercase, lowercase, and numbers
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>

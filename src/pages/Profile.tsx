@@ -8,6 +8,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { validatePassword } from '@/lib/password-validation';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
 
 export default function Profile() {
   const { user } = useAuthContext();
@@ -54,11 +56,12 @@ export default function Profile() {
   };
 
   const handleChangePassword = async () => {
-    if (!newPassword || newPassword.length < 6) {
+    const validation = validatePassword(newPassword);
+    if (!validation.valid) {
       toast({
         variant: 'destructive',
         title: 'Invalid password',
-        description: 'Password must be at least 6 characters'
+        description: validation.message
       });
       return;
     }
@@ -152,7 +155,10 @@ export default function Profile() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••"
               />
-              <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+              <PasswordStrengthIndicator password={newPassword} />
+              <p className="text-xs text-muted-foreground">
+                Minimum 8 characters with uppercase, lowercase, and numbers
+              </p>
             </div>
             <Button onClick={handleChangePassword} disabled={isLoading || !newPassword}>
               Update Password
