@@ -24,9 +24,15 @@ export function AppLayout({ children }: AppLayoutProps) {
       if (user) {
         const { data } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, role_selected')
           .eq('id', user.id)
           .maybeSingle();
+        
+        // If role hasn't been selected, redirect to role selection
+        if (data && !data.role_selected) {
+          navigate('/select-role');
+          return;
+        }
         
         if (data?.role) {
           setRole(data.role as 'producer' | 'consumer');
@@ -34,7 +40,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       }
     }
     fetchRole();
-  }, [user]);
+  }, [user, navigate]);
 
   if (loading) {
     return (

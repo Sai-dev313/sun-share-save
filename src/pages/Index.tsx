@@ -26,11 +26,18 @@ export default function Index() {
       if (user) {
         const { data } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, role_selected')
           .eq('id', user.id)
           .maybeSingle();
 
-        if (data?.role) {
+        if (data) {
+          // If role hasn't been explicitly selected, go to role selection
+          if (!data.role_selected) {
+            navigate('/select-role');
+            return;
+          }
+          
+          // Role was selected, redirect to appropriate dashboard
           setRole(data.role);
           if (data.role === 'producer') {
             navigate('/dashboard');

@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
+import SelectRole from "./pages/SelectRole";
 import ProducerDashboard from "./pages/ProducerDashboard";
 import ConsumerDashboard from "./pages/ConsumerDashboard";
 import Profile from "./pages/Profile";
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/select-role" element={<SelectRole />} />
             <Route path="/dashboard" element={<ProducerDashboard />} />
             <Route path="/consumer" element={<ConsumerDashboard />} />
             <Route path="/profile" element={<Profile />} />
