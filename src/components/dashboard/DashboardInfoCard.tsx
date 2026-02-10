@@ -33,7 +33,7 @@
                  </li>
                  <li className="flex items-center gap-2">
                    <Zap className="h-4 w-4 text-primary flex-shrink-0" />
-                   <span><strong>Pay Bills</strong> – 1 Credit = ₹2 savings on electricity bill</span>
+                   <span><strong>Pay Bills</strong> – 1 Credit = ₹3 savings on electricity bill</span>
                  </li>
                </ul>
              </div>
@@ -61,7 +61,7 @@
                </li>
                <li className="flex items-center gap-2">
                  <Zap className="h-4 w-4 text-primary flex-shrink-0" />
-                 <span><strong>Pay Bills</strong> – 1 Credit = ₹2 savings on your electricity bill</span>
+                 <span><strong>Pay Bills</strong> – 1 Credit = ₹3 savings on your electricity bill</span>
                </li>
                <li className="flex items-center gap-2">
                  <Coins className="h-4 w-4 text-primary flex-shrink-0" />

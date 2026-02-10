@@ -83,7 +83,7 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
   const [isLoading, setIsLoading] = useState(false);
   const [receipt, setReceipt] = useState<PaymentReceipt | null>(null);
 
-  const savingsPerCredit = 2; // ₹2 per credit
+  const savingsPerCredit = 3; // ₹3 per credit
 
   const generateDemoBill = () => {
     if (!provider || !consumerNumber) {
@@ -287,7 +287,43 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
 
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => {
+              if (!receipt) return;
+              const html = `
+<!DOCTYPE html>
+<html><head><title>Receipt - ${receipt.receiptId.slice(0,8).toUpperCase()}</title>
+<style>body{font-family:sans-serif;max-width:500px;margin:40px auto;padding:20px}
+h1{text-align:center;color:#16a34a;font-size:20px}
+.row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+.label{color:#666}.val{font-weight:600}
+hr{border:none;border-top:1px solid #ddd;margin:12px 0}
+.total{font-size:18px;font-weight:bold}
+.badge{text-align:center;background:#dcfce7;color:#16a34a;padding:8px;border-radius:8px;margin:16px 0}
+</style></head><body>
+<h1>⚡ Electricity Bill Payment Receipt</h1>
+<div class="row"><span class="label">Receipt ID</span><span class="val">${receipt.receiptId.slice(0,8).toUpperCase()}</span></div>
+<div class="row"><span class="label">Date & Time</span><span class="val">${receipt.dateTime}</span></div>
+<hr/>
+<div class="row"><span class="label">Provider</span><span class="val">${receipt.provider}</span></div>
+<div class="row"><span class="label">Consumer Name</span><span class="val">${receipt.consumerName}</span></div>
+<div class="row"><span class="label">Consumer Number</span><span class="val">${receipt.consumerNumber}</span></div>
+<div class="row"><span class="label">Billing Month</span><span class="val">${receipt.billingMonth}</span></div>
+<hr/>
+<div class="row"><span class="label">Total Bill Amount</span><span class="val">₹${receipt.totalBillAmount.toLocaleString()}</span></div>
+${receipt.creditsApplied > 0 ? `<div class="row" style="color:#16a34a"><span>Credits Applied (${receipt.creditsApplied})</span><span>-₹${receipt.creditSavings.toLocaleString()}</span></div>` : ''}
+<hr/>
+<div class="row total"><span>UPI Paid</span><span>₹${receipt.upiPaidAmount.toLocaleString()}</span></div>
+<div class="badge">✅ Paid Successfully</div>
+<p style="text-align:center;font-size:11px;color:#999">System-generated receipt • SolarCredit</p>
+</body></html>`;
+              const blob = new Blob([html], { type: 'text/html' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `receipt-${receipt.receiptId.slice(0,8).toUpperCase()}.html`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}>
               <Download className="h-4 w-4 mr-2" />
               Download Receipt
             </Button>
@@ -506,23 +542,39 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
           <Input
             id="consumerNumber"
             type="text"
-            placeholder="Enter your consumer number"
+            inputMode="numeric"
+            maxLength={10}
+            placeholder="Enter 10-digit consumer number"
             value={consumerNumber}
-            onChange={(e) => setConsumerNumber(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === '' || /^\d+$/.test(val)) {
+                setConsumerNumber(val);
+              } else {
+                toast({
+                  variant: 'destructive',
+                  title: 'Invalid input',
+                  description: 'Please enter only 10-digit numerical values'
+                });
+              }
+            }}
           />
+          {consumerNumber.length > 0 && consumerNumber.length < 10 && (
+            <p className="text-xs text-destructive">Consumer number must be exactly 10 digits</p>
+          )}
         </div>
 
         {/* Fetch Bill Button */}
         <Button 
           className="w-full h-12 text-lg"
           onClick={generateDemoBill}
-          disabled={!provider || !consumerNumber}
+          disabled={!provider || consumerNumber.length !== 10}
         >
           <Receipt className="h-5 w-5 mr-2" />
           Fetch Bill
         </Button>
 
-        {(!provider || !consumerNumber) && (
+        {(!provider || consumerNumber.length !== 10) && (
           <div className="text-center py-4 text-muted-foreground">
             <Receipt className="h-12 w-12 mx-auto mb-3 opacity-50" />
             <p>Select your provider and enter consumer number to fetch your bill</p>

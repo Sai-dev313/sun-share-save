@@ -10,7 +10,7 @@ import { MessageCircle } from 'lucide-react';
 const faqs = [
   {
     question: "Is this real money or just points?",
-    answer: "Solar Credits are a digital representation of clean energy contribution. While they're not currency, they can be used to offset electricity bills or traded on our marketplace. The value is real — 1 credit = ₹2 savings on your bill."
+    answer: "Solar Credits are a digital representation of clean energy contribution. While they're not currency, they can be used to offset electricity bills or traded on our marketplace. The value is real — 1 credit = ₹3 savings on your bill."
   },
   {
     question: "Can I earn monthly income from this?",

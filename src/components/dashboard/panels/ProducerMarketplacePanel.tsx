@@ -28,6 +28,8 @@ export function ProducerMarketplacePanel({ credits, onListingCreated }: Producer
   const [myListings, setMyListings] = useState<Listing[]>([]);
   const [creditsToSell, setCreditsToSell] = useState('');
   const [pricePerCredit, setPricePerCredit] = useState('0.85');
+  const priceValue = parseFloat(pricePerCredit);
+  const isPriceOutOfRange = pricePerCredit !== '' && (isNaN(priceValue) || priceValue < 0.5 || priceValue > 2.5);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -129,21 +131,26 @@ export function ProducerMarketplacePanel({ credits, onListingCreated }: Producer
               <p className="text-xs text-muted-foreground">Available: {credits}</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="price">Price per Credit (₹)</Label>
+              <Label htmlFor="price">Price per Credit (₹0.50 - ₹2.50)</Label>
               <Input
                 id="price"
                 type="number"
                 step="0.01"
+                min="0.50"
+                max="2.50"
                 placeholder="e.g., 0.85"
                 value={pricePerCredit}
                 onChange={(e) => setPricePerCredit(e.target.value)}
               />
+              {isPriceOutOfRange && (
+                <p className="text-xs text-destructive">Price must be between ₹0.50 and ₹2.50</p>
+              )}
             </div>
             <div className="flex items-end">
               <Button
                 className="w-full"
                 onClick={handleCreateListing}
-                disabled={isLoading || !creditsToSell || parseFloat(creditsToSell) <= 0 || parseFloat(creditsToSell) > credits}
+                disabled={isLoading || !creditsToSell || parseFloat(creditsToSell) <= 0 || parseFloat(creditsToSell) > credits || isPriceOutOfRange || !pricePerCredit}
               >
                 List for Sale
               </Button>

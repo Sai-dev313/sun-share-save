@@ -17,7 +17,7 @@ interface Profile {
 
 export default function ConsumerDashboard() {
   const { user } = useAuthContext();
-  const [profile, setProfile] = useState<Profile>({ credits: 0, cash: 5000 });
+  const [profile, setProfile] = useState<Profile>({ credits: 0, cash: 0 });
   const [activePanel, setActivePanel] = useState<PanelType>(null);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function ConsumerDashboard() {
     if (data) {
       setProfile({
         credits: Number(data.credits) || 0,
-        cash: Number(data.cash) || 5000
+        cash: Number(data.cash) || 0
       });
     }
   };
@@ -94,9 +94,9 @@ export default function ConsumerDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Credits Balance</p>
-                <p className="text-3xl font-bold text-primary">{profile.credits}</p>
+                <p className="text-3xl font-bold text-primary">{Math.round(profile.credits)}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  = ₹{profile.credits * 2} potential savings
+                  = ₹{Math.round(profile.credits) * 3} potential savings
                 </p>
               </div>
               <div className="p-3 bg-primary/10 rounded-lg">

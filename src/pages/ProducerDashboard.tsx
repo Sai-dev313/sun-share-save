@@ -26,7 +26,7 @@ interface EnergyLog {
 
 export default function ProducerDashboard() {
   const { user } = useAuthContext();
-  const [profile, setProfile] = useState<Profile>({ credits: 0, cash: 5000 });
+  const [profile, setProfile] = useState<Profile>({ credits: 0, cash: 0 });
   const [energyToday, setEnergyToday] = useState<EnergyLog>({ generated: 0, used: 0, sent_to_grid: 0, credits_converted: false });
   const [activePanel, setActivePanel] = useState<PanelType>(null);
 
@@ -49,7 +49,7 @@ export default function ProducerDashboard() {
     if (profileData) {
       setProfile({
         credits: Number(profileData.credits) || 0,
-        cash: Number(profileData.cash) || 5000
+        cash: Number(profileData.cash) || 0
       });
     }
 
@@ -147,7 +147,7 @@ export default function ProducerDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Credits Balance</p>
-                  <p className="text-3xl font-bold text-primary">{profile.credits}</p>
+                  <p className="text-3xl font-bold text-primary">{Math.round(profile.credits)}</p>
                 </div>
                 <div className="p-3 bg-primary/10 rounded-lg">
                   <Coins className="h-6 w-6 text-primary" />
@@ -159,7 +159,7 @@ export default function ProducerDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Cash Balance</p>
+                  <p className="text-sm text-muted-foreground">Earned by Credits (₹)</p>
                   <p className="text-3xl font-bold">₹{profile.cash.toLocaleString()}</p>
                 </div>
                 <div className="p-3 bg-muted rounded-lg">
