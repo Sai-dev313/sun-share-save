@@ -1,1 +1,4 @@
 project_id = "jnpwhflbsatrjxdxfpmz"
+
+[functions.generate-impact-statement]
+verify_jwt = false
