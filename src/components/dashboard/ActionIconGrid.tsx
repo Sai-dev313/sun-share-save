@@ -1,4 +1,4 @@
-import { Sun, RefreshCw, Store, Zap, Receipt, ShoppingCart } from 'lucide-react';
+import { Sun, RefreshCw, Store, Zap, Receipt, ShoppingCart, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type PanelType = 
@@ -8,6 +8,7 @@ export type PanelType =
   | 'payBill' 
   | 'paymentHistory' 
   | 'buyCredits'
+  | 'solarGPT'
   | null;
 
 interface ActionIconGridProps {
@@ -28,12 +29,14 @@ const producerActions: ActionItem[] = [
   { id: 'marketplace', icon: Store, label: 'Marketplace' },
   { id: 'payBill', icon: Zap, label: 'Pay Electricity Bill' },
   { id: 'paymentHistory', icon: Receipt, label: 'Payment History' },
+  { id: 'solarGPT', icon: Bot, label: 'SolarGPT' },
 ];
 
 const consumerActions: ActionItem[] = [
   { id: 'buyCredits', icon: ShoppingCart, label: 'Buy Credits' },
   { id: 'payBill', icon: Zap, label: 'Pay Electricity Bill' },
   { id: 'paymentHistory', icon: Receipt, label: 'Payment History' },
+  { id: 'solarGPT', icon: Bot, label: 'SolarGPT' },
 ];
 
 export function ActionIconGrid({ role, activePanel, onPanelChange }: ActionIconGridProps) {
@@ -42,7 +45,7 @@ export function ActionIconGrid({ role, activePanel, onPanelChange }: ActionIconG
   return (
     <div className={cn(
       "grid gap-4",
-      role === 'producer' ? "grid-cols-3 md:grid-cols-5" : "grid-cols-3"
+      role === 'producer' ? "grid-cols-3 md:grid-cols-6" : "grid-cols-2 md:grid-cols-4"
     )}>
       {actions.map((action) => (
         <button

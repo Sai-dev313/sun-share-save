@@ -9,6 +9,8 @@ import { ConvertCreditsPanel } from '@/components/dashboard/panels/ConvertCredit
 import { ProducerMarketplacePanel } from '@/components/dashboard/panels/ProducerMarketplacePanel';
 import { PaymentHistoryPanel } from '@/components/dashboard/panels/PaymentHistoryPanel';
 import { BillPayment } from '@/components/BillPayment';
+import { SolarGPTPanel } from '@/components/dashboard/panels/SolarGPTPanel';
+import { LifetimeImpactPill } from '@/components/dashboard/LifetimeImpactPill';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -126,6 +128,8 @@ export default function ProducerDashboard() {
         );
       case 'paymentHistory':
         return <PaymentHistoryPanel />;
+      case 'solarGPT':
+        return <SolarGPTPanel />;
       default:
         return null;
     }
@@ -169,6 +173,9 @@ export default function ProducerDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Lifetime Impact */}
+        <LifetimeImpactPill />
 
         {/* Action Icons */}
         <ActionIconGrid 

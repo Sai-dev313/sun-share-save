@@ -2,3 +2,9 @@ project_id = "jnpwhflbsatrjxdxfpmz"
 
 [functions.generate-impact-statement]
 verify_jwt = false
+
+[functions.generate-lifetime-impact]
+verify_jwt = false
+
+[functions.solargpt]
+verify_jwt = false
