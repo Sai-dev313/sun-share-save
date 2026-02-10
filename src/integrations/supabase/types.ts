@@ -122,6 +122,30 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_impact_snapshot: {
+        Row: {
+          equivalent_trees: number
+          id: string
+          last_updated_at: string
+          total_co2_avoided_kg: number
+          total_units_sent_to_grid: number
+        }
+        Insert: {
+          equivalent_trees?: number
+          id?: string
+          last_updated_at?: string
+          total_co2_avoided_kg?: number
+          total_units_sent_to_grid?: number
+        }
+        Update: {
+          equivalent_trees?: number
+          id?: string
+          last_updated_at?: string
+          total_co2_avoided_kg?: number
+          total_units_sent_to_grid?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           cash: number | null
@@ -306,6 +330,7 @@ export type Database = {
               success: boolean
             }[]
           }
+      refresh_impact_snapshot: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
