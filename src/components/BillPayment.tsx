@@ -194,7 +194,7 @@ export function BillPayment({ credits, onPaymentComplete, isConsumer = false }: 
           toast({
             title: 'Bill paid successfully!',
             description: creditSavings > 0 
-              ? `You saved ₹${creditSavings} using ${creditsToUse} credits!`
+              ? `You saved ₹${Math.round(creditSavings * 10) / 10} using ${creditsToUse} credits!`
               : 'Your electricity bill has been paid.'
           });
         }}
@@ -434,7 +434,7 @@ ${receipt.creditsApplied > 0 ? `<div class="row" style="color:#16a34a"><span>Cre
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Credits to use</span>
-                    <span className="font-bold text-primary">{creditsToUse} credits = ₹{creditSavings} savings</span>
+                    <span className="font-bold text-primary">{creditsToUse} credits = ₹{Math.round(creditSavings * 10) / 10} savings</span>
                   </div>
                 </div>
 

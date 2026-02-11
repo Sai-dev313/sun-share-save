@@ -31,6 +31,7 @@ export default function ProducerDashboard() {
   const [profile, setProfile] = useState<Profile>({ credits: 0, cash: 0 });
   const [energyToday, setEnergyToday] = useState<EnergyLog>({ generated: 0, used: 0, sent_to_grid: 0, credits_converted: false });
   const [activePanel, setActivePanel] = useState<PanelType>(null);
+  const [earnings, setEarnings] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -54,6 +55,14 @@ export default function ProducerDashboard() {
         cash: Number(profileData.cash) || 0
       });
     }
+
+    // Fetch actual marketplace earnings
+    const { data: salesData } = await supabase
+      .from('transactions')
+      .select('total_price')
+      .eq('seller_id', user.id);
+    const totalEarnings = (salesData || []).reduce((sum, r) => sum + (Number(r.total_price) || 0), 0);
+    setEarnings(totalEarnings);
 
     // Fetch today's energy log
     const today = new Date().toISOString().split('T')[0];
@@ -164,7 +173,7 @@ export default function ProducerDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Earned by Credits (₹)</p>
-                  <p className="text-3xl font-bold">₹{profile.cash.toLocaleString()}</p>
+                  <p className="text-3xl font-bold">₹{Math.round(earnings).toLocaleString()}</p>
                 </div>
                 <div className="p-3 bg-muted rounded-lg">
                   <IndianRupee className="h-6 w-6" />

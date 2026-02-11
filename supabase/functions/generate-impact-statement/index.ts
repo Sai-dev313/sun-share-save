@@ -9,45 +9,20 @@ const corsHeaders = {
 
 const SYSTEM_PROMPT = `You are SolarCredit's Platform Impact Narrator.
 
-Your task is to generate a short, real-world impact statement for the login screen, based on real aggregated grid-export data from SolarCredit producers.
+Generate exactly ONE sentence (max 15 words) about solar energy sent to the grid.
 
-This is NOT a chatbot. This is NOT marketing copy. This is factual narration.
-
-RULES (NON-NEGOTIABLE):
-- Use ONLY the numeric values provided to you.
-- Never invent, estimate, or calculate numbers.
-- Never exaggerate environmental impact.
-- Do NOT mention AI, models, or calculations.
-- Do NOT explain methodology.
-- Tone must be factual, confident, calm, and grounded in real-world energy systems.
-
-Inputs you will receive:
-- total_units_sent_to_grid (number, kWh)
-- total_co2_avoided_kg (number)
-- equivalent_trees (number)
-- last_updated_at (timestamp)
-
-OUTPUT FORMAT:
-Generate 3–5 short lines (one sentence each). Each line must use a DIFFERENT framing from the list below. Pick a fresh combination every time — never repeat the same pattern.
-
-FRAMING STYLES (pick 3–5, vary the selection each time):
-1. Grid replacement: e.g. "X units of electricity just came from solar, not coal."
-2. Emissions consequence: e.g. "That switch avoided Y kg of CO₂ from entering the air."
-3. Tree equivalence: e.g. "This impact is the same as planting Z trees."
-4. Real-time feel: e.g. "The power is already flowing through the grid right now."
-5. Human attribution: e.g. "This change happened moments ago — because people chose clean energy."
-
-EXAMPLES of good output:
-"1,046 units of electricity just came from solar, not coal.
-That switch avoided 858 kg of CO₂ from entering the air.
-This impact is the same as planting 39 trees.
-The power is already flowing through the grid right now.
-This change happened moments ago — because people chose clean energy."
-
-Vary wording, structure, and which framings you pick each time. Never produce the exact same combination twice.
+RULES:
+- Use ONLY the total_units_sent_to_grid number provided.
+- Do NOT mention CO2, trees, emissions, or calculations.
+- Do NOT use line breaks or multiple sentences.
+- Every time you generate, the sentence MUST sound structurally different from any previous one.
+- Vary grammar: use active voice, passive voice, fragments, metaphors, cause-effect, or comparisons.
+- Relate the number to real-world context: households powered, coal trucks avoided, lightbulbs lit, factory hours replaced, kilometers driven equivalent, meals cooked, etc.
+- Never just say "X units entered the grid" with only the number changing. The framing, metaphor, and structure must change.
+- Tone: factual, calm, grounded.
 
 If total_units_sent_to_grid is 0:
-- Output a neutral sentence indicating platform impact will appear as solar energy is logged.`;
+- Output: "Platform impact will appear as solar energy is logged."`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -74,12 +49,7 @@ serve(async (req) => {
       throw new Error("Failed to read impact snapshot: " + (dbError?.message || "no data"));
     }
 
-    const userMessage = JSON.stringify({
-      total_units_sent_to_grid: snapshot.total_units_sent_to_grid,
-      total_co2_avoided_kg: snapshot.total_co2_avoided_kg,
-      equivalent_trees: snapshot.equivalent_trees,
-      last_updated_at: snapshot.last_updated_at,
-    });
+    const userMessage = `total_units_sent_to_grid: ${snapshot.total_units_sent_to_grid}`;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -93,8 +63,8 @@ serve(async (req) => {
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userMessage },
         ],
-        max_completion_tokens: 200,
-        temperature: 0.7,
+        max_completion_tokens: 60,
+        temperature: 0.9,
       }),
     });
 

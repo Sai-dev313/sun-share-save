@@ -100,7 +100,7 @@ export default function ConsumerDashboard() {
                 <p className="text-sm text-muted-foreground">Credits Balance</p>
                 <p className="text-3xl font-bold text-primary">{Math.round(profile.credits)}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  = ₹{Math.round(profile.credits) * 3} potential savings
+                  = ₹{Math.round(profile.credits * 3)} potential savings
                 </p>
               </div>
               <div className="p-3 bg-primary/10 rounded-lg">
